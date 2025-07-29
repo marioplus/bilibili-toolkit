@@ -1,5 +1,5 @@
 import {IPlugin} from '../IPlugin'
-import style from '../../style/home/home-clean.less.less?inline'
+import style from '../../style/home/home-clean.less?inline'
 import {loadStyles} from '../../utils/StyleUtils'
 
 /**
