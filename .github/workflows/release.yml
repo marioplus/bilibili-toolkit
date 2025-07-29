@@ -112,7 +112,7 @@ jobs:
           RESPONSE=$(gh api \
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/releases/tags/$VERSION \
-            --jq '.id // empty' 2>/dev/null || true)
+            --jq '.id // empty' 2>/dev/null || echo "")
           
           # Step 2. 如果存在则删除旧 Release
           if [ -n "$RESPONSE" ]; then
