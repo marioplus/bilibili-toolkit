@@ -107,24 +107,16 @@ jobs:
           echo "=== 构建产物 ==="
           find ./release_assets -type f | xargs ls -lh
           
-          # Step 1. 检查是否已存在 Release
-          echo "正在检查现有 Release..."
-          RESPONSE=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/releases/tags/$VERSION \
-            --jq '.id // empty' 2>/dev/null || echo "")
-          
-          # Step 2. 如果存在则删除旧 Release
-          if [ -n "$RESPONSE" ]; then
-            echo "::warning::发现已存在的 Release ID=$RESPONSE，执行删除..."
-            gh api \
-              --method DELETE \
-              /repos/${{ github.repository }}/releases/$RESPONSE
-            echo "已删除旧 Release，等待 3 秒..."
-            sleep 3  # 避免 GitHub API 缓存问题
+          # 删除已存在的 Release（如果存在）
+          echo "检查并删除已存在的 Release..."
+            if RELEASE_ID=$(gh api /repos/${{ github.repository }}/releases/tags/$VERSION --jq '.id' 2>/dev/null); then
+            echo "::warning::删除已存在的 Release (ID: $RELEASE_ID)"
+            gh api --method DELETE /repos/${{ github.repository }}/releases/$RELEASE_ID
+            echo "等待 API 同步..."
+            sleep 3
           fi
           
-          # Step 3. 创建新 Release
+          # 创建新 Release
           echo "正在创建 Release $VERSION..."
           RELEASE_ID=$(gh api \
             --method POST \
@@ -137,7 +129,7 @@ jobs:
             -f prerelease=false \
             --jq '.id')
           
-          # Step 4. 上传所有构建产物
+          # 上传所有构建产物
           echo "开始上传资产 (Release ID=$RELEASE_ID)..."
           for FILE in ./release_assets/*; do
             echo "上传: $(basename "$FILE")"
