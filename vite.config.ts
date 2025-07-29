@@ -7,9 +7,13 @@ export default defineConfig({
         monkey({
             entry: 'src/main.ts',
             userscript: {
-                name: 'bilibili toolkit',
+                name: 'bilibili工具箱',
+                author: 'marioplus',
+                description: '一些自用的b站脚本',
                 icon: 'https://i0.hdslb.com/bfs/static/jinkela/long/images/favicon.ico',
-                namespace: 'npm/vite-plugin-monkey',
+                namespace: 'https://github.com/marioplus/bilibili-toolkit',
+                homepage: 'https://github.com/marioplus',
+                license: 'GPL-3.0-or-later',
                 match: [
                     'https://*.bilibili.com/',
                     'https://*.bilibili.com/*'
