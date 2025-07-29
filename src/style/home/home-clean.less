@@ -1,0 +1,36 @@
+// adblock提示
+.adblock-tips {
+  display: none !important;
+}
+
+// 头部频道导航
+.bili-header__channel {
+  display: none !important;;
+}
+
+.bili-header::after {
+  display: block;
+  content: "";
+  height: 5vh;
+}
+
+// 轮播图
+.container > .recommended-swipe {
+  display: none !important;
+}
+
+// 直播 / 番剧 / 课堂 / 电影...
+.floor-single-card {
+  display: none !important;
+}
+
+// 特殊位置对不齐的修正
+.recommended-container_floor-aside .container.is-version8 {
+  & > *:nth-of-type(n + 13) {
+    margin-top: unset !important;
+  }
+
+  & > *:nth-of-type(n + 8) {
+    margin-top: unset !important;
+  }
+}
