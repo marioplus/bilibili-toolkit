@@ -1,5 +1,5 @@
 import {IPlugin} from '../IPlugin'
-import style from '../../style/home/home-remove-recommendation-cards.less?inline'
+import style from '../../style/home/home-clean.less.less?inline'
 import {loadStyles} from '../../utils/StyleUtils'
 
 /**
