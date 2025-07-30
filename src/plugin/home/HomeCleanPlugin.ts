@@ -15,16 +15,6 @@ export class HomeCleanPlugin implements IPlugin {
     execute(): void {
         // 直播 / 课堂 / 番剧 ...卡片
         loadStyles(style)
-
-        // 轮播图广告
-        document
-            .querySelectorAll('.vui_carousel__slide')
-            .forEach(el => {
-                let ad = el.querySelector('.carousel-item > img.icon')
-                if (ad) {
-                    el.remove()
-                }
-            })
     }
 
 }

@@ -1,13 +1,19 @@
+@hide-element: {
+  display: none !important;
+  //opacity: 0.5;
+};
+
 // adblock提示
 .adblock-tips {
-  display: none !important;
+  @hide-element();
 }
 
 // 头部频道导航
 .bili-header__channel {
-  display: none !important;;
+  @hide-element();
 }
 
+// 顶部占位
 .bili-header::after {
   display: block;
   content: "";
@@ -16,12 +22,12 @@
 
 // 轮播图
 .container > .recommended-swipe {
-  display: none !important;
+  @hide-element();
 }
 
 // 直播 / 番剧 / 课堂 / 电影...
 .floor-single-card {
-  display: none !important;
+  @hide-element();
 }
 
 // 特殊位置对不齐的修正
@@ -33,4 +39,25 @@
   & > *:nth-of-type(n + 8) {
     margin-top: unset !important;
   }
+}
+
+// 火箭图标卡片
+@card-ad-rocket: ~'svg.vui_icon.bili-video-card__stats--icon';
+.feed-card:has(@{card-ad-rocket}),
+.bili-feed-card:has(@{card-ad-rocket}) {
+  @hide-element();
+}
+
+// 广告卡片
+@card-ad-text: ~'.bili-video-card__mask > .bili-video-card__stats > div.bili-video-card__stats--left + span.bili-video-card__stats--text';
+.feed-card:has(@{card-ad-text}),
+.bili-feed-card:has(@{card-ad-text}) {
+  @hide-element();
+}
+
+// adblock 移除后的卡片
+@card-ad-adblock: ~'.bili-video-card > .bili-video-card__wrap';
+.feed-card:not(:has(@{card-ad-adblock})),
+.bili-feed-card:not(:has(@{card-ad-adblock})) {
+  @hide-element();
 }
