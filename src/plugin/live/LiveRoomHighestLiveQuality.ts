@@ -3,17 +3,17 @@ import {unsafeWindow} from '$'
 
 interface LivePlayer {
     getPlayerInfo: () => PlayerInfo;
-    switchQuality: (qn: number) => void;
+    switchQuality: (qn: string) => void;
 }
 
 interface PlayerInfo {
-    quality: string | number;
+    quality: string;
     qualityCandidates: QualityCandidate[];
     playurl?: string;
 }
 
 interface QualityCandidate {
-    qn: string | number;
+    qn: string;
     desc: string;
     hdrType: number;
 }
@@ -70,6 +70,7 @@ interface QualityCandidate {
 export class LiveRoomHighestLiveQuality implements IPlugin {
 
     private get livePlayer(): LivePlayer | undefined {
+        // @ts-ignore
         const player = unsafeWindow.livePlayer as LivePlayer | undefined
         if (player
             && player.getPlayerInfo()
@@ -117,23 +118,23 @@ export class LiveRoomHighestLiveQuality implements IPlugin {
     /**
      * 获取最高画质编号
      */
-    getHighestQualityNumber(): number {
-        return unsafeWindow.livePlayer.getPlayerInfo().qualityCandidates[0].qn
+    getHighestQualityNumber(): string {
+        return this.livePlayer!.getPlayerInfo().qualityCandidates[0].qn
     }
 
     /**
      * 获取当前画质编号
      */
-    getCurrentQualityNumber(): number {
-        return unsafeWindow.livePlayer.getPlayerInfo().quality
+    getCurrentQualityNumber(): string {
+        return this.livePlayer!.getPlayerInfo().quality
     }
 
     /**
      * 切换画质
      * @param qn 画质编号
      */
-    switchQuality(qn: number): void {
-        unsafeWindow.livePlayer.switchQuality(qn)
+    switchQuality(qn: string): void {
+        this.livePlayer!.switchQuality(qn)
     }
 
 }
