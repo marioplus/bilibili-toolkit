@@ -32,14 +32,18 @@ jobs:
           # 提取变更日志
           START_LINE=$(grep -n '^## v' CHANGELOG.md | head -n 1 | cut -d: -f1)
           END_LINE=$(grep -n '^## v' CHANGELOG.md | sed -n '2p' | cut -d: -f1)
-          END_LINE=${END_LINE:-$(wc -l < CHANGELOG.md)}
           
+          if [ -z "$END_LINE" ]; then
+            CHANGELOG=$(sed -n "${START_LINE},\$p" CHANGELOG.md)
+          else
           CHANGELOG=$(sed -n "$((START_LINE - 1)),$((END_LINE - 1))p" CHANGELOG.md)
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          fi
+          
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "artifact=$(basename "${{ github.repository }}").user.js" >> $GITHUB_OUTPUT
 
   build:
