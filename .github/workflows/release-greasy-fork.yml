@@ -33,7 +33,7 @@ jobs:
             echo "SCRIPT_CONTENT<<EOF"
             cat $SCRIPT_FILE
             echo EOF
-          } >>$GITHUB_OUTPUT
+          } >> $GITHUB_OUTPUT
 
       - name: 获取release描述
         id: get-release-description
@@ -45,7 +45,7 @@ jobs:
             echo "DESCRIPTION<<EOF"
             echo "$DESCRIPTION"
             echo EOF
-          } >>$GITHUB_OUTPUT
+          } >> $GITHUB_OUTPUT
 
       - name: 更新 greasy-fork
         env:
