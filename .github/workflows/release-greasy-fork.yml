@@ -29,10 +29,11 @@ jobs:
           echo "脚本文件: $SCRIPT_FILE"
           echo "脚本内容:"
           cat $SCRIPT_FILE
-          
-          echo "SCRIPT_CONTENT<<EOF" >> $GITHUB_OUTPUT
-          cat $SCRIPT_FILE >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "SCRIPT_CONTENT<<EOF"
+            cat $SCRIPT_FILE
+            echo "EOF"
+          } >>$GITHUB_OUTPUT
 
       - name: 获取release描述
         id: get-release-description
@@ -40,10 +41,11 @@ jobs:
           DESCRIPTION=$(gh release view $GITHUB_REF --json body | jq -r .body)
           echo "release描述:"
           echo "$DESCRIPTION"
-          
-          echo "DESCRIPTION<<EOF" >> $GITHUB_OUTPUT
-          echo "$DESCRIPTION" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "DESCRIPTION<<EOF"
+            echo "$DESCRIPTION"
+            echo EOF
+          } >>$GITHUB_OUTPUT
 
       - name: 更新 greasy-fork
         env:
