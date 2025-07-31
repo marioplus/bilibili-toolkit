@@ -22,17 +22,17 @@ jobs:
           # 下载物料
           gh release download $LATEST_VERSION
 
-      - name: 提取release信息
-        id: extract-release-info
+      - name: 提取脚本内容
+        id: extract-script
         run: |
           SCRIPT_FILE=$(find . -name "*.user.js" | head -n 1)
           echo "脚本文件: $SCRIPT_FILE"
-          
-          echo "SCRIPT_CONTENT<<EOF_DELIMITER" >> $GITHUB_OUTPUT
-          cat $SCRIPT_FILE >> $GITHUB_OUTPUT
-          echo "EOF_DELIMITER" >> $GITHUB_OUTPUT
           echo "脚本内容:"
-          echo $(cat $SCRIPT_FILE)
+          cat $SCRIPT_FILE
+          
+          echo "SCRIPT_CONTENT<<EOF" >> $GITHUB_OUTPUT
+          cat $SCRIPT_FILE >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 获取release描述
         id: get-release-description
@@ -52,7 +52,7 @@ jobs:
         run: |
           RESPONSE=$(curl -X POST \
             -H "Authorization: Bearer $GF_API_KEY" \
-            -F "script[code]=${{ steps.extract-release-info.outputs.SCRIPT_CONTENT }}" \
+            -F "script[code]=${{ steps.extract-script.outputs.SCRIPT_CONTENT }}" \
             -F "script[additional_info]=${{ steps.get-release-description.outputs.DESCRIPTION }}" \
             "https://greasyfork.org/scripts/$GF_SCRIPT_ID/versions.json")
           
