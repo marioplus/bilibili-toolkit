@@ -28,8 +28,7 @@ jobs:
           # 下载asset
           echo "# 下载asset"
           gh api repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID \
-            --header "Accept: application/octet-stream" \
-            --output release.zip
+            --header "Accept: application/octet-stream" > release.zip
 
       - name: 提取release信息
         id: extract-release-info
