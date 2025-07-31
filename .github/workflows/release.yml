@@ -2,7 +2,6 @@ name: Optimized Deploy to GitHub Releases
 on:
   push:
     branches: [ master ]
-
 jobs:
   # 第一阶段：从 CHANGELOG.md 提取版本号和变更日志
   extract-metadata:
@@ -30,22 +29,18 @@ jobs:
           # 从 CHANGELOG.md 提取版本号 (格式: ## vX.Y.Z)
           VERSION=$(awk '/^## v[0-9]/{match($0, /## v([0-9.]+)/, arr); print arr[1]; exit}' CHANGELOG.md)
           
-          # 验证版本号格式 (必须符合 X.Y.Z)
-          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid version format (expected X.Y.Z)"
-            exit 1
-          fi
-
-          # 提取当前版本的变更日志内容
-          # 获取第一个 ## vX.Y.Z 到下一个 ## vX.Y.Z 之间的内容
-          CHANGELOG=$(sed -n '/^## v[0-9]/,$p' CHANGELOG.md | sed '/^## v[0-9]/,$d')
+          # 提取变更日志
+          START_LINE=$(grep -n '^## v' CHANGELOG.md | head -n 1 | cut -d: -f1)
+          END_LINE=$(grep -n '^## v' CHANGELOG.md | sed -n '2p' | cut -d: -f1)
+          END_LINE=${END_LINE:-$(wc -l < CHANGELOG.md)}
+          
+          CHANGELOG=$(sed -n "$((START_LINE - 1)),$((END_LINE - 1))p" CHANGELOG.md)
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           echo "artifact=$(basename "${{ github.repository }}").user.js-$VERSION" >> $GITHUB_OUTPUT
-
 
   build:
     name: Build
@@ -79,14 +74,12 @@ jobs:
           path: dist/*
           # 如果无文件则报错
           if-no-files-found: error
-
   release:
     name: Release
     runs-on: ubuntu-latest
     needs: [ extract-metadata, build ]
     permissions:
       contents: write  # 需要写入权限
-      packages: write  # 如果需要上传到包仓库
     steps:
       - uses: actions/checkout@v4
 
@@ -103,54 +96,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: v${{ needs.extract-metadata.outputs.version }}
         run: |
-          # 调试：显示待上传文件
-          echo "=== 构建产物 ==="
-          find ./release_assets -type f | xargs ls -lh
-          
-          # 删除已存在的 Release（如果存在）
-          echo "检查并删除已存在的 Release..."
-            if RELEASE_ID=$(gh api /repos/${{ github.repository }}/releases/tags/$VERSION --jq '.id' 2>/dev/null); then
-            echo "::warning::删除已存在的 Release (ID: $RELEASE_ID)"
-            gh api --method DELETE /repos/${{ github.repository }}/releases/$RELEASE_ID
-            echo "等待 API 同步..."
-            sleep 3
-          fi
-          
-          # 创建新 Release
-          echo "正在创建 Release $VERSION..."
-          RELEASE_ID=$(gh api \
-            --method POST \
-            /repos/${{ github.repository }}/releases \
-            -f tag_name="$VERSION" \
-            -f target_commitish="${{ github.sha }}" \
-            -f name="$VERSION" \
-            -f body="${{ needs.extract-metadata.outputs.changelog }}" \
-            -f draft=false \
-            -f prerelease=false \
-            --jq '.id')
-          
-          # 上传所有构建产物
-          echo "开始上传资产 (Release ID=$RELEASE_ID)..."
-          for FILE in ./release_assets/*; do
-            echo "上传: $(basename "$FILE")"
-            gh api \
-              --method POST \
-              /repos/${{ github.repository }}/releases/$RELEASE_ID/assets \
-              -H "Content-Type: $(file -b --mime-type "$FILE")" \
-              -H "Content-Length: $(wc -c < "$FILE")" \
-              -f name="$(basename "$FILE")" \
-              --input "$FILE"
-          done
-          
-          # 输出 Release URL 供后续步骤使用
-          echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
-          echo "release_url=https://github.com/${{ github.repository }}/releases/tag/$VERSION" >> $GITHUB_OUTPUT
+          # 删除现有草稿（可选）
+               gh api repos/${{ github.repository }}/releases \
+               --jq '.[] | select(.draft == true) | .id' \
+               | xargs -I '{}' gh api -X DELETE repos/${{ github.repository }}/releases/{} || true
 
-      # 验证结果
-      - name: Verify Release
-        run: |
-          echo "=== 发布结果 ==="
-          echo "Release ID: ${{ steps.release.outputs.release_id }}"
-          echo "URL: ${{ steps.release.outputs.release_url }}"
-          gh release view ${{ steps.release.outputs.release_url }} \
-            --json assets,createdAt,body
+          # 创建发布草稿
+               gh release create v${{ needs.extract-metadata.outputs.version }} \
+               --draft \
+               --title "v${{ needs.extract-metadata.outputs.version }}" \
+               --notes "${{ needs.extract-metadata.outputs.changelog }}" \
+               release_assets/*
