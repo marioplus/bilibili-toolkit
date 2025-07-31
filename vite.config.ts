@@ -13,7 +13,7 @@ export default defineConfig({
                 icon: 'https://i0.hdslb.com/bfs/static/jinkela/long/images/favicon.ico',
                 namespace: 'https://github.com/marioplus/bilibili-toolkit',
                 homepage: 'https://github.com/marioplus',
-                license: 'GPL-3.0-or-later',
+                license: 'MIT',
                 match: [
                     'https://*.bilibili.com/',
                     'https://*.bilibili.com/*'

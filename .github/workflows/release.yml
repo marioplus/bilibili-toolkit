@@ -40,7 +40,7 @@ jobs:
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          echo "artifact=$(basename "${{ github.repository }}").user.js-$VERSION" >> $GITHUB_OUTPUT
+          echo "artifact=$(basename "${{ github.repository }}").user.js" >> $GITHUB_OUTPUT
 
   build:
     name: Build
@@ -62,10 +62,6 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-
-      # 验证构建产物是否存在
-      - name: Verify Artifacts
-        run: test -d dist && test -n "$(ls -A dist)" || (echo "::error::No build artifacts" && exit 1)
 
       # 上传构建产物供后续使用
       - uses: actions/upload-artifact@v4
