@@ -1,0 +1,57 @@
+name: release-greasy-fork.yml
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release-greasy-fork:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出
+        uses: actions/checkout@v4
+
+      - name: 下载release物料
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          
+          ARTIFACT=$(basename "${{ github.repository }}").user.js-$VERSION.zip
+          
+          # 获取assetId
+          echo "# 获取assetId"
+          ASSET_ID=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/$VERSION \
+            --jq ".assets[] | select(.name == \"${ARTIFACT}\") | .id")
+          
+          # 下载asset
+          echo "# 下载asset"
+          gh api repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID \
+            --header "Accept: application/octet-stream" \
+            --output release.zip
+
+      - name: 提取release信息
+        id: extract-release-info
+        run: |
+          mkdir extracted
+          unzip release.zip -d extracted
+          SCRIPT_FILE=$(find extracted -name "*.user.js" | head -n 1)
+          echo "SCRIPT_CONTENT<<EOF_DELIMITER" >> $GITHUB_OUTPUT
+          cat $SCRIPT_FILE >> $GITHUB_OUTPUT
+          echo "EOF_DELIMITER" >> $GITHUB_OUTPUT
+
+      - name: 获取release描述
+        id: get-release-description
+        run: |
+          echo "DESCRIPTION<<EOF" >> $GITHUB_OUTPUT
+          gh release view $GITHUB_REF --json body | jq -r .body >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 更新 greasy-fork
+        env:
+          GF_API_KEY: ${{ secrets.GF_API_KEY }}
+          GF_SCRIPT_ID: ${{ vars.GF_SCRIPT_ID }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $GF_API_KEY" \
+            -F "script[code]=${{ steps.extract-release-info.outputs.SCRIPT_CONTENT }}" \
+            -F "script[additional_info]=${{ steps.get-release-description.outputs.DESCRIPTION }}" \
+            "https://greasyfork.org/scripts/$GF_SCRIPT_ID/versions.json"
