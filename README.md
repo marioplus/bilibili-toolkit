@@ -4,60 +4,28 @@
 
 ## 功能特性
 
-### 首页优化
+### 首页
 
-- 隐藏广告屏蔽提示
-- 隐藏首页轮播图
-- 隐藏频道导航栏
-- 隐藏推荐卡片（直播、番剧、课程等）
+- 隐藏adblock插件提示
+- 隐藏轮播图
+- 隐藏频道导航
+- 隐藏广告卡片
+- 隐藏首页课程/番剧/综艺...卡片
+- 隐藏未登录的提示框
 
-### 动态页面优化
+### 直播
 
-- 自动将带有推广参数的动态页面重定向到视频标签页
+- 自动最高画质
+- 隐藏右侧实验室/关注图标
+- 隐藏小橙车提示
 
-### 直播页面优化
+### 其他
 
-- 隐藏右侧边栏
-- 优化礼物面板位置
+- 动态跳转到视频列表
 
-## 安装方式
+### 安装
 
-### 前提条件
-
-- 安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
-
-### 安装步骤
-
-1. 前往 [Releases](https://github.com/your-username/bilibili-toolkit/releases) 页面
-2. 下载最新的 [.user.js](file://E:\Code\tampermokey\bilibili-toolkit\dist\bilibili-toolkit.user.js) 文件
-3. Tampermonkey 会自动提示安装脚本
-4. 点击"安装"完成安装
-
-### 开发者安装
-
-```bash
-# 克隆项目
-git clone https://github.com/your-username/bilibili-toolkit.git
-cd bilibili-toolkit
-
-# 安装依赖
-npm install
-
-# 构建项目
-npm run build
-
-# 构建后的脚本位于 dist/ 目录下
-```
-
-## 使用说明
-
-安装后脚本会自动运行，无需额外配置。脚本会根据当前访问的页面自动应用相应的优化规则。
-
-### 支持的页面
-
-- `www.bilibili.com` - 首页
-- `t.bilibili.com` - 动态页面
-- `live.bilibili.com` - 直播页面
+脚本托管于 [Greasy Fork](https://greasyfork.org/zh-CN/scripts/544206-bilibili%E5%B7%A5%E5%85%B7%E7%AE%B1)
 
 ## 开发指南
 
