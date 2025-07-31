@@ -3,6 +3,7 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
 
 jobs:
   release-greasy-fork:
@@ -15,7 +16,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=$(gh api repos/${{ github.repository }}/releases/latest --jq .tag_name)
           
           ARTIFACT=$(basename "${{ github.repository }}").user.js-$VERSION.zip
           
