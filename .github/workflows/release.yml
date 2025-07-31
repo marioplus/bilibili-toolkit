@@ -109,4 +109,4 @@ jobs:
                --draft \
                --title "v${{ needs.extract-metadata.outputs.version }}" \
                --notes "${{ needs.extract-metadata.outputs.changelog }}" \
-               dist/*
+               release_assets/*
