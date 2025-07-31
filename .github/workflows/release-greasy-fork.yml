@@ -25,16 +25,24 @@ jobs:
       - name: 提取release信息
         id: extract-release-info
         run: |
-          SCRIPT_FILE=$(find extracted -name "*.user.js" | head -n 1)
+          SCRIPT_FILE=$(find . -name "*.user.js" | head -n 1)
+          echo "脚本文件: $SCRIPT_FILE"
+          
           echo "SCRIPT_CONTENT<<EOF_DELIMITER" >> $GITHUB_OUTPUT
           cat $SCRIPT_FILE >> $GITHUB_OUTPUT
           echo "EOF_DELIMITER" >> $GITHUB_OUTPUT
+          echo "脚本内容:"
+          echo $(cat $SCRIPT_FILE)
 
       - name: 获取release描述
         id: get-release-description
         run: |
+          DESCRIPTION=$(gh release view $GITHUB_REF --json body | jq -r .body)
+          echo "release描述:"
+          echo "$DESCRIPTION"
+          
           echo "DESCRIPTION<<EOF" >> $GITHUB_OUTPUT
-          gh release view $GITHUB_REF --json body | jq -r .body >> $GITHUB_OUTPUT
+          echo "$DESCRIPTION" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 更新 greasy-fork
@@ -42,8 +50,11 @@ jobs:
           GF_API_KEY: ${{ secrets.GF_API_KEY }}
           GF_SCRIPT_ID: ${{ vars.GF_SCRIPT_ID }}
         run: |
-          curl -X POST \
+          RESPONSE=$(curl -X POST \
             -H "Authorization: Bearer $GF_API_KEY" \
             -F "script[code]=${{ steps.extract-release-info.outputs.SCRIPT_CONTENT }}" \
             -F "script[additional_info]=${{ steps.get-release-description.outputs.DESCRIPTION }}" \
-            "https://greasyfork.org/scripts/$GF_SCRIPT_ID/versions.json"
+            "https://greasyfork.org/scripts/$GF_SCRIPT_ID/versions.json")
+          
+          echo "更新greasy-fork结果:"
+          echo "$RESPONSE"
